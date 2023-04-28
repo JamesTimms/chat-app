@@ -1,2 +1,5 @@
 # Environments
 venv/
+
+# Python
+__pycache__/
