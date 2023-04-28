@@ -20,8 +20,7 @@ async def websocket_endpoint(websocket: WebSocket):
             await connection_manager.broadcast(data)
 
     except WebSocketDisconnect:
-        print('WebSocketDisconnect Exception...')
-        traceback.print_exc()
+        print('Connection closed by client...')
 
     finally:
         # Remove the connection from the list of active connections
