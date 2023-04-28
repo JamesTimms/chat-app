@@ -1,0 +1,4 @@
+fastapi==0.81.0
+uvicorn==0.18.3
+websockets==11.0.2
+uuid==1.30
