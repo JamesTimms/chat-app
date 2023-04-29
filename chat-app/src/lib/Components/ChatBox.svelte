@@ -1,181 +1,189 @@
-<script>
-  import {
-    Tile,
-    TextInput,
-    Button,
-    InlineNotification,
-  } from "carbon-components-svelte";
+<script lang="ts">
+  import { Tile, TextInput, Button, Loading } from "carbon-components-svelte";
 
   import Send from "carbon-icons-svelte/lib/Send.svelte";
-  import { onDestroy, onMount } from "svelte";
+  import { afterUpdate, onDestroy, onMount } from "svelte";
+  import type Message from "../models/message";
+  import Spacer from "./Spacer.svelte";
 
-  let messageText = "";
-  let senderId = "";
+  export let roomId: string;
+  export let userName: string;
 
-  let messages = [];
+  let messageText: string = "";
 
-  let socket;
+  let messages: Message[] = [];
 
-  let snackBarMessage = "Connected";
-  let snackBarStatus = "Success";
-  let showSnackBar = false;
+  let messageSockets: WebSocket;
 
-  onMount(() => {
-    try {
-      socket = new WebSocket("ws://localhost:8000/messaging");
+  let wrapperContainer = undefined;
 
-      socket.onopen = (ws, event) => {
-        console.log("connected");
-        handleShowSnackBar("Connected", "Success");
-      };
+  $: {
+    connectToRoomWith(roomId);
+  }
 
-      socket.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          if (data["type"] == "connect") {
-            senderId = data["id"];
-          } else if (data["type"] == "disconnected") {
-            handleShowSnackBar("Disconnected", `Client ` + data["id"]);
-          } else {
-            messages = [data, ...messages];
-          }
-        } catch (e) {
-          console.log(event.data);
-          console.error(e);
-        }
-      };
-
-      socket.onerror = (event) => {
-        console.log("Failed to connect to websocket");
-      };
-
-      socket.close = (event) => {
-        handleShowSnackBar("Disconnected", "Client disconnected");
-        console.log("Connection closed");
-      };
-    } catch (e) {
-      console.log("Failed to connect to websocket");
+  afterUpdate(() => {
+    if (wrapperContainer !== undefined) {
+      scrollToBottom(wrapperContainer);
     }
   });
 
-  onDestroy(() => {
+  const scrollToBottom = async (node) => {
+    node.scroll({ top: node.scrollHeight, behavior: "smooth" });
+  };
+
+  function forceDisconnect() {
     try {
-      socket.close();
+      messageSockets.send(JSON.stringify({ type: "close" }));
+      messageSockets.close(1000, "Closing socket");
     } catch (e) {
       console.log("Failed to close socket");
     }
-  });
+  }
+  function connectToRoomWith(id: string) {
+    if (roomId == "") return;
+
+    if (messageSockets !== null && messageSockets !== undefined) {
+      forceDisconnect();
+    }
+
+    messages = [];
+
+    messageSockets = new WebSocket("ws://localhost:8000/connect-rooms/" + id);
+    messageSockets.onopen = () => {};
+    messageSockets.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+
+      messages = [
+        ...messages,
+        {
+          message: data.message,
+          userId: data.user_id,
+          roomId: data.room_id,
+        },
+      ];
+
+      scrollToBottom(wrapperContainer);
+    };
+    messageSockets.onerror = (event) => {
+      messages = [];
+    };
+    messageSockets.close = (event) => {
+      messages = [];
+    };
+  }
+
+  onMount(() => connectToRoomWith(roomId));
+
+  onDestroy(forceDisconnect);
 
   function handleSendMessage() {
-    if (messageText == "") return;
-    socket.send(JSON.stringify({ text: messageText, senderId: senderId }));
+    if (messageText === "" || roomId === "") return;
+    console.log(userName);
+    messageSockets.send(
+      JSON.stringify({
+        message: messageText,
+        user_id: userName,
+        room_id: roomId,
+      })
+    );
 
     messageText = "";
   }
-
-  function handleShowSnackBar(message, status) {
-    showSnackBar = true;
-    snackBarMessage = message;
-    snackBarStatus = status;
-    setTimeout(() => {
-      showSnackBar = false;
-    }, 3000);
-  }
 </script>
 
-<Tile style="width: 500px; height: 700px">
-  <p>ID: {senderId}</p>
-  <div class="tile-header">
-    <h2>Flash Chat</h2>
-  </div>
-
-  <div class="messages-history">
-    {#if messages.length == 0}
-      <p style="position: absolute; top: 50%; left: 50%; translate: -50%">
-        There are no messages yet
-      </p>
-    {/if}
-    {#each messages as message}
-      {#if message.senderId == senderId}
-        <div class=" message-tile align-right">
-          <p>
-            {message.text}
-          </p>
-        </div>
-      {:else}
-        <div class="message-tile align-left">
-          <p>
-            {message.text}
-          </p>
-        </div>
-      {/if}
-    {/each}
-  </div>
-  <div class="tile-actions">
-    <TextInput
-      labelText="Message"
-      placeholder="Enter a message..."
-      bind:value={messageText}
-    />
-    <Button type="submit" on:click={handleSendMessage} icon={Send}>Send</Button>
-  </div>
-</Tile>
-
-{#if showSnackBar}
-  <div class="snackbar">
-    <InlineNotification
-      kind="info"
-      title={snackBarStatus}
-      subtitle={snackBarMessage}
-    />
+{#if roomId !== ""}
+  <Tile>
+    <div class="wrapper" bind:this={wrapperContainer}>
+      <div class="message-list">
+        {#if messages.length > 0}
+          {#each messages as message}
+            <div
+              class="message"
+              class:sent-message={message.userId === userName}
+              class:received-message={message.userId !== userName}
+            >
+              <p class="message-text">{message.message}</p>
+              <p class="message-sender">{message.userId}</p>
+            </div>
+          {/each}
+        {:else}
+          <div class="no-messages">No messages</div>
+        {/if}
+      </div>
+    </div>
+    <div class="tile-actions">
+      <TextInput
+        labelText="Message"
+        placeholder="Enter a message..."
+        bind:value={messageText}
+      />
+      <Button type="submit" icon={Send} on:click={handleSendMessage}
+        >Send</Button
+      >
+    </div>
+  </Tile>
+{:else}
+  <div class="centered-loader">
+    <Loading withOverlay={false} />
+    <Spacer space={10} />
+    <p>We are waiting for rooms to load</p>
   </div>
 {/if}
 
 <style>
-  .tile-header {
-    display: flex;
-    padding: 10px 0px 10px 0px;
-    justify-content: space-between;
-  }
-  .messages-history {
-    position: relative;
-    display: flex;
-    flex-direction: column-reverse;
-    padding: 10px 0px 10px 0px;
-    min-height: 0;
-    height: calc(0.7 * 700px);
-    width: 100%;
+  .wrapper {
     overflow-y: scroll;
     overflow-x: hidden;
+    height: 500px;
+    width: 600px;
+    min-height: 500px;
+    min-width: 600px;
+  }
+
+  .message-list {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 10px;
+    height: 100%;
+  }
+
+  .message {
+    padding: 10px;
+    margin-top: 10px;
+    width: 50%;
+    max-width: 50%;
+    min-width: 50%;
+  }
+  .message-text {
+    word-wrap: break-word;
+  }
+  .sent-message {
+    align-self: flex-end;
+    background-color: #0062ff;
+  }
+  .received-message {
+    align-self: flex-start;
+    background-color: grey;
   }
   .tile-actions {
     display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    margin-top: 20px;
+    align-items: flex-end;
+    padding: 10px;
   }
-
-  .message-tile {
-    padding: 20px;
-    max-width: 50%;
-    margin: 10px 0px 10px 0px;
+  .no-messages {
+    text-align: center;
+    padding: 10px;
   }
-
-  .align-right {
-    position: relative;
-    left: 100%;
-    translate: -105%;
-    background-color: #0f62fe;
-    margin-right: 10px;
+  .centered-loader {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
   }
-
-  .align-left {
-    background-color: #6f6f6f;
-  }
-  .snackbar {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
+  .message-sender {
+    font-size: 12px;
+    text-align: right;
   }
 </style>

@@ -1,19 +1,34 @@
 <script lang="ts">
   import ChatBox from "./lib/Components/ChatBox.svelte";
   import "carbon-components-svelte/css/g100.css";
+  import UserName from "./lib/Components/UserName.svelte";
+  import ChatView from "./lib/Components/ChatView.svelte";
+
+  let userName: string = "";
+  function handleUsernameEvent(event: CustomEvent<string>) {
+    console.log("username submitted");
+    userName = event.detail["userName"];
+    console.log(userName);
+  }
 </script>
 
 <main>
-  <div class="centered-chat-box">
-    <ChatBox />
-  </div>
+  {#if !userName}
+    <div class="centered-chat-box">
+      <UserName on:username={handleUsernameEvent} />
+    </div>
+  {:else}
+    <div class="centered-chat-box">
+      <ChatView {userName} />
+    </div>
+  {/if}>
 </main>
 
 <style>
   .centered-chat-box {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
+    display: flex;
+    height: 100vh;
+    justify-content: center;
+    align-items: center;
   }
 </style>
