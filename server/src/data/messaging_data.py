@@ -12,15 +12,16 @@ class MessageData:
         This class is responsible for storing messaging to the client.
     '''
 
-    def __init__(self) -> None:
+    def __init__(self, mongo_url, db_name="chat") -> None:
         '''
             Initializes the messaging
         '''
-        mongo_url = os.getenv("MONGO_URI")
+        mongo_url = mongo_url or os.getenv("MONGO_URI")
         self.client = MongoClient(mongo_url)
-        self.data_base = self.client["chat"]
+        self.data_base = self.client[db_name]
         self.messages_collection: Collection[ChatMessage] = self.data_base["messages"]
         self.logger = Logger("MessagingData")
+
 
     def add_message(self, message: ChatMessage):
         '''
@@ -39,6 +40,7 @@ class MessageData:
             self.logger.error(f"Error adding message to the database: {error}")
         except Exception as error:
             self.logger.error(f"Error adding message to the database: {error}")
+
 
     def get_messages_of(self, room_id: str) -> list[ChatMessage]:
         '''

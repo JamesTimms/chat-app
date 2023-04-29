@@ -13,7 +13,7 @@ class Logger:
     '''
 
 
-    def __init__(self, logger_name: str):
+    def __init__(self, logger_name: str, log_level: str = "INFO"):
         self.logger = logging.getLogger(logger_name)
         handler = logging.StreamHandler()
 
@@ -30,8 +30,8 @@ class Logger:
                 },
             )
         )
+        self.logger.setLevel(log_level)
         self.logger.addHandler(handler)
-        self.logger.setLevel(logging.DEBUG)
 
 
     def info(self, message: object):

@@ -1,7 +1,7 @@
 """ 
     Model class for chat rooms
 """
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 
 
 class Room (BaseModel):
@@ -11,6 +11,18 @@ class Room (BaseModel):
 
     name: str
     description: str
+
+    @validator('name')
+    def name_must_not_be_empty(cls, value):
+        if not value:
+            raise ValueError('Room name cannot be empty')
+        return value
+
+    @validator('description')
+    def description_must_not_be_empty(cls, value):
+        if not value:
+            raise ValueError('Room description cannot be empty')
+        return value
 
     def to_dict(self):
         '''
