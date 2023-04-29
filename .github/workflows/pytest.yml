@@ -28,14 +28,8 @@ jobs:
         pip install -r server/requirements.txt
         pip install -r server/dev-requirements.txt
 
-    - name: Start MongoDB container
-      run: docker run -d --name chat-mongodb -p 27017:27017 mongo
-
     - name: Run tests
       run: |
         cd server
         export PYTHONPATH=$PYTHONPATH:./src
         pytest tests/
-
-    - name: Stop MongoDB container
-      run: docker stop chat-mongodb && docker rm chat-mongodb
