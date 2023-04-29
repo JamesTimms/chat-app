@@ -24,4 +24,7 @@ jobs:
         pip install -r server/dev-requirements.txt
 
     - name: Run tests
-      run: pytest server/tests/
+      run: |
+        cd server
+        export PYTHONPATH=$PYTHONPATH:./src
+        pytest tests/

@@ -5,13 +5,13 @@ import asyncio
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, status, Response
 from fastapi.middleware.cors import CORSMiddleware
 
-from src.models.room import Room
-from src.models.chat_message import ChatMessage
-from src.managers.rooms_manager import RoomsManager
-from src.managers.messaging_manager import MessagingManager
-from src.logger.logger import Logger
-from src.data.rooms_data import RoomsData
-from src.data.messaging_data import MessageData
+from .models.room import Room
+from .models.chat_message import ChatMessage
+from .managers.rooms_manager import RoomsManager
+from .managers.messaging_manager import MessagingManager
+from .logger.logger import Logger
+from .data.rooms_data import RoomsData
+from .data.messaging_data import MessageData
 
 
 # Instance of the FastAPI app
