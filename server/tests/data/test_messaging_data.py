@@ -8,13 +8,14 @@ from src.models.chat_message import ChatMessage
 @pytest.fixture
 def message_data(request):
     # create a test database
-    test_db_name = f"test_{uuid.uuid4()}"
-    test_db_uri = f"mongodb://localhost:27017/{test_db_name}"
-    message_data = MessageData(mongo_url=test_db_uri, db_name=test_db_name)
+    chat_db = f"test_chat_db_{uuid.uuid4()}"
+    mongo_url = f"mongodb://localhost:27017/{chat_db}"
+    # mongo_url = f"mongodb://chat-mongodb:27017/chat-mongodb"
+    message_data = MessageData(mongo_url, chat_db)
 
     # setup cleanup function to drop test database
     def cleanup():
-        message_data.client.drop_database(test_db_name)
+        message_data.client.drop_database(chat_db)
     request.addfinalizer(cleanup)
 
     yield message_data

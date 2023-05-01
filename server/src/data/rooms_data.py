@@ -17,13 +17,11 @@ class RoomsData:
         '''
             Initializes the rooms data
         '''
-        mongo_url = mongo_url or os.getenv("MONGO_URI")
         self.client = MongoClient(mongo_url)
         self.data_base = self.client[db_name]
         self.rooms_collection: Collection[Room] = self.data_base["rooms"]
         self.logger = Logger("RoomsData")
         main_room = Room(name="General", description="General room")
-
         self.add_room(main_room)
 
 

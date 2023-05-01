@@ -6,7 +6,6 @@ from src.logger.logger import Logger
 from pymongo.mongo_client import MongoClient
 from pymongo.collection import Collection
 
-
 class MessageData:
     '''
         This class is responsible for storing messaging to the client.
@@ -16,7 +15,6 @@ class MessageData:
         '''
             Initializes the messaging
         '''
-        mongo_url = mongo_url or os.getenv("MONGO_URI")
         self.client = MongoClient(mongo_url)
         self.data_base = self.client[db_name]
         self.messages_collection: Collection[ChatMessage] = self.data_base["messages"]
