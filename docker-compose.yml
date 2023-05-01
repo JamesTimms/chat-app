@@ -7,24 +7,25 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - websocket_api  
+      - websocket_api
+
   websocket_api: # Websocket API running on its own container
     build: ./server
     restart: unless-stopped
     environment:
-     - MONGO_URI=mongodb://chat-mongodb:27017/chat-mongodb
+     - MONGO_URI=${MONGO_URI}
     volumes:
       - ./server/src:/app/src
     ports:
       - "8000:8000"
     depends_on:
       - mongodb
-  
+
   # Database
   mongodb:
     image: mongo:latest
     container_name: chat-mongodb
     environment:
-      - MONGO_URI=mongodb://chat-mongodb:27017/chat-mongodb
+      - MONGO_URI=${MONGO_URI}
     ports:
       - 27017:27017

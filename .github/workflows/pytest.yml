@@ -30,7 +30,7 @@ jobs:
 
     - name: Run tests
       env:
-        MONGO_URL: mongodb://localhost:27017
+        MONGO_URI: mongodb://mongodb:27017/chat-mongodb
       run: |
         cd server
         export PYTHONPATH=$PYTHONPATH:./src

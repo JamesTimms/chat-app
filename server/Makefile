@@ -1,4 +1,4 @@
-export MONGO_URL?=mongodb://chat-mongodb:27017/chat-mongodb
+export MONGO_URI?=mongodb://chat-mongodb:27017/chat-mongodb
 export PYTHONPATH=$PYTHONPATH:./src
 
 pytest:

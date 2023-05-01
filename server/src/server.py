@@ -33,11 +33,9 @@ async def run_app(settings: Settings, logger: Logger):
     app.state.chat_manager = MessagingManager()
     app.state.rooms_manager = RoomsManager()
     app.state.api_logger.info("Creating Room Data...")
-    app.state.api_logger.info("MONGO_URL")
-    app.state.api_logger.info(settings.MONGO_URL)
-    app.state.rooms_data = RoomsData(settings.MONGO_URL, settings.CHAT_DB)
+    app.state.rooms_data = RoomsData(settings.MONGO_URI, settings.CHAT_DB)
     app.state.api_logger.info("Creating Messaging Data...")
-    app.state.messages_data = MessageData(settings.MONGO_URL, settings.CHAT_DB)
+    app.state.messages_data = MessageData(settings.MONGO_URI, settings.CHAT_DB)
 
     app.state.settings = settings
 
