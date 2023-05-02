@@ -1,17 +1,3 @@
-# Environments
-venv/
-
-# Python
-__pycache__/
-.pytest_cache/
-.coverage
-.coverage.*
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
-cover/
-
 
 # Flutter
 # Miscellaneous
