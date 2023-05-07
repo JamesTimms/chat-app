@@ -1,4 +1,5 @@
-import asyncio, uvicorn, os
+import asyncio
+import uvicorn
 
 from src.server import run_app
 from src.settings import Settings

@@ -1,5 +1,4 @@
 """Module providing the RoomsData class to interact with the rooms data"""
-import os
 from src.models.room import Room
 from src.logger.logger import Logger
 

@@ -44,7 +44,8 @@ def test_add_message_failure(message_data):
 
     with pytest.raises(Exception):
         # Raise an exception when inserting the message
-        with message_data.messages_collection.watch([{'$match': {'operationType': 'insert'}}]):
+        with message_data.messages_collection.watch([
+            {'$match': {'operationType': 'insert'}}]):
             message_data.add_message(message)
 
 
@@ -66,6 +67,7 @@ def test_get_messages_of_success(message_data):
 
 
 def test_get_messages_of_failure(message_data):
-    with mock.patch.object(message_data.messages_collection, 'find', side_effect=Exception):
+    with mock.patch.object(message_data.messages_collection,
+                           'find', side_effect=Exception):
         messages = message_data.get_messages_of("test_room")
         assert len(messages) == 0

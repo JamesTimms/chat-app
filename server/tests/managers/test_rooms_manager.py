@@ -43,7 +43,8 @@ async def test_send_room_to(rooms_manager, websocket, sample_room):
 
 @pytest.mark.asyncio
 async def test_broadcast_room(rooms_manager, sample_room):
-    ws1, ws2, ws3 = AsyncMock(spec=WebSocket), AsyncMock(spec=WebSocket), AsyncMock(spec=WebSocket)
+    ws1, ws2, ws3 = AsyncMock(spec=WebSocket), AsyncMock(spec=WebSocket), AsyncMock(spec=WebSocket)  # noqa: E501
+
     rooms_manager.rooms_listeners = {ws1, ws2, ws3}
 
     # mock send_json
@@ -52,7 +53,8 @@ async def test_broadcast_room(rooms_manager, sample_room):
     ws3.send_json = AsyncMock()
 
     # expected results
-    expected_json = {'__id:': 'Test Room', 'name': 'Test Room', 'description': 'This is a test room'}
+    expected_json = {'__id:': 'Test Room', 'name': 'Test Room',
+                     'description': 'This is a test room'}
 
     # broadcast room
     await rooms_manager.broadcast_room(sample_room)

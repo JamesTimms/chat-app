@@ -1,5 +1,4 @@
 """Module providing the MessagingData class to interact with the messaging data"""
-import os
 from src.models.chat_message import ChatMessage
 from src.logger.logger import Logger
 
