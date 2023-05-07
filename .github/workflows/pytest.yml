@@ -2,13 +2,19 @@ name: Python CI
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
+    paths:
+      - 'server/**'
   pull_request:
     branches: [ main ]
+    paths:
+      - 'server/**'
 
 jobs:
   lint:
     runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'schedule' }}
     steps:
     - uses: actions/checkout@v2
 
@@ -28,6 +34,7 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'schedule' }}
     services:
       mongodb:
         image: mongo
